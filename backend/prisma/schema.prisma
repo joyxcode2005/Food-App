@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String  @id @default(uuid())
+  firstName String?
+  lastName  String?
+  email     String  @unique
+  password  String
+  avatar    String?
+
+  carts        Cart[]
+  reservations Reservation[]
+  orders       Order[]
+}
+
+model Admin {
+  id        String  @id @default(uuid())
+  firstName String?
+  lastName  String?
+  email     String
+  password  String
+  avatar    String
+
+  restaurants Restaurant[]
+}
+
+model Restaurant {
+  id          String           @id @default(uuid())
+  name        String
+  description String
+  location    String?
+  phoneNumber String
+  status      RestaurantStatus
+  time        String
+  images      String[]
+
+  food         Food[]
+  reservations Reservation[]
+  orders       Order[]
+  Cart         Cart[]
+
+  Admin   Admin  @relation(fields: [adminId], references: [id])
+  adminId String
+}
+
+model Food {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  type        FoodType
+  images      String[]
+  amount      Decimal
+
+  restaurantId String
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  cartItems    CartFood[]
+  orderItems   OrderFood[]
+}
+
+model Cart {
+  id          String   @id @default(uuid())
+  totalAmount Decimal
+  isOrdered   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  userId       String
+  restaurantId String
+  user         User       @relation(fields: [userId], references: [id])
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  foods        CartFood[]
+}
+
+model CartFood {
+  id       String @id @default(uuid())
+  cartId   String
+  foodId   String
+  quantity Int    @default(1)
+
+  cart Cart @relation(fields: [cartId], references: [id])
+  food Food @relation(fields: [foodId], references: [id])
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  userId       String
+  restaurantId String
+  totalAmount  Decimal
+  orderStatus  OrderStatus @default(PENDING)
+  address      String
+  phoneNumber  String
+  createdAt    DateTime    @default(now())
+
+  user       User        @relation(fields: [userId], references: [id])
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id])
+  foods      OrderFood[]
+}
+
+model OrderFood {
+  id       String @id @default(uuid())
+  orderId  String
+  foodId   String
+  quantity Int    @default(1)
+
+  order Order @relation(fields: [orderId], references: [id])
+  food  Food  @relation(fields: [foodId], references: [id])
+}
+
+model Reservation {
+  id                String   @id @default(uuid())
+  userId            String
+  restuarantId      String
+  numberOfSeats     Int
+  timeOfReservation DateTime
+
+  user       User       @relation(fields: [userId], references: [id])
+  restaurant Restaurant @relation(fields: [restuarantId], references: [id])
+}
+
+// ENUM'S
+
+enum RestaurantStatus {
+  OPEN
+  CLOSE
+}
+
+enum FoodType {
+  VEG
+  NON_VEG
+}
+
+enum OrderStatus {
+  PENDING
+  DELIVERED
+  CANCELLED
+}
