@@ -18,18 +18,18 @@ declare global {
   namespace Express {
     export interface Request {
       userId?: string;
+      adminId?: string;
     }
   }
 }
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
     message: "Server is healthy!!!",
   });
 });
 
 // Setting up the routers
-
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/admin", adminRouter);
 

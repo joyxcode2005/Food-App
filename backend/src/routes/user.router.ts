@@ -9,7 +9,11 @@ import restaurantsRouter from "./restaurants.router";
 import cartRouter from "./carts.router";
 import orderRouter from "./order.router";
 import reservationRouter from "./reservation.router";
-import { userLoginSchema, userRegisterSchema } from "../types";
+import {
+  userLoginSchema,
+  userProfileUpdateSchema,
+  userRegisterSchema,
+} from "../types";
 import uploadFile from "../services/uploadToS3.service";
 import prisma from "../config/db";
 
@@ -157,6 +161,148 @@ router.post("/login", async (req: Request, res: Response) => {
 
 router.use(userMiddleware);
 
+// Get profile details
+router.get("/me", async (req: Request, res: Response) => {
+  const userId = req.userId;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found!!" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatar: user.avatar,
+      },
+      message: "User found!",
+    });
+  } catch (error) {
+    console.error("Some error occured: ", error);
+    return res.status(500).json({
+      message: "Internal server error!!",
+    });
+  }
+});
+
+// Update the profile detials
+router.put(
+  "/me",
+  upload.single("image"),
+  async (req: Request, res: Response) => {
+    const userId = req.userId;
+    const { success } = userProfileUpdateSchema.safeParse(req.body);
+    const file = req.file;
+
+    if (!success) {
+      return res.status(406).json({
+        message: "Invalid Input",
+      });
+    }
+
+    let { firstName, lastName, email, password } = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(401).json({
+        message: "Invalid input",
+      });
+    }
+
+    try {
+      //Get the existing user
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!existingUser) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      let avatar: string | undefined;
+
+      if (file) {
+        const avatar = await uploadFile(file);
+      }
+
+      const updates: any = {};
+      const updatedFields: string[] = [];
+
+      if (!firstName && firstName != existingUser.firstName) {
+        updates.firstName = firstName;
+        updatedFields.push("first name");
+      }
+
+      if (lastName && lastName !== existingUser.lastName) {
+        updates.lastName = lastName;
+        updatedFields.push("last name");
+      }
+
+      if (email && email !== existingUser.email) {
+        updates.email = email;
+        updatedFields.push("email");
+      }
+
+      if (password) {
+        const isSamePassword = await bcrypt.compare(
+          password,
+          existingUser.password
+        );
+        if (!isSamePassword) {
+          const hashedPassword = await bcrypt.hash(password, 10);
+          updates.password = hashedPassword;
+          updatedFields.push("password");
+        }
+      }
+
+      if (avatar) {
+        updates.avatar = avatar;
+        updatedFields.push("avatar");
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(200).json({
+          success: true,
+          message: "No changes detected. User profile remains the same.",
+        });
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: updates,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: `Successfully updated: ${updatedFields.join(", ")}.`,
+        updatedFields,
+        user: {
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          avatar: updatedUser.avatar,
+        },
+      });
+    } catch (error) {
+      console.error("Error while updating user:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  }
+);
+
+
 // Restaurant router for user
 router.use("/restaurants", restaurantsRouter);
 
@@ -168,11 +314,5 @@ router.use("/orders", orderRouter);
 
 // Reservations router for user
 router.use("/reservations", reservationRouter);
-
-// Get profile details
-router.get("/me", (req: Request, res: Response) => {});
-
-// Update the profile detials
-router.put("/me", (req: Request, res: Response) => {});
 
 export default router;
