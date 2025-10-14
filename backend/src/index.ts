@@ -23,7 +23,7 @@ declare global {
   }
 }
 
-app.get("/health", (req: Request, res: Response) => {
+app.get("/api/v1/health", (req: Request, res: Response) => {
   res.status(200).json({
     message: "Server is healthy!!!",
   });

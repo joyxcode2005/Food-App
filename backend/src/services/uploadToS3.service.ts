@@ -5,6 +5,9 @@ import {
 } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const s3 = new S3Client({
   region: process.env.AWS_REGION || "",
@@ -13,6 +16,9 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
   },
 });
+
+console.log(process.env.AWS_REGION)
+
 
 export default async function uploadFile(
   file: Express.Multer.File

@@ -198,22 +198,23 @@ router.put(
   upload.single("image"),
   async (req: Request, res: Response) => {
     const userId = req.userId;
-    const { success } = userProfileUpdateSchema.safeParse(req.body);
+    const { success, error } = userProfileUpdateSchema.safeParse(req.body);
     const file = req.file;
 
     if (!success) {
       return res.status(406).json({
         message: "Invalid Input",
+        errors: error,
       });
     }
 
     let { firstName, lastName, email, password } = req.body;
 
-    if (!firstName || !lastName || !email || !password) {
-      return res.status(401).json({
-        message: "Invalid input",
-      });
-    }
+    // if (!firstName || !lastName || !email || !password) {
+    //   return res.status(401).json({
+    //     message: "Invalid input",
+    //   });
+    // }
 
     try {
       //Get the existing user
