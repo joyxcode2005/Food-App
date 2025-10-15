@@ -17,7 +17,7 @@ const s3 = new S3Client({
   },
 });
 
-console.log(process.env.AWS_REGION)
+console.log(process.env.AWS_BUCKET_NAME)
 
 
 export default async function uploadFile(
@@ -27,7 +27,7 @@ export default async function uploadFile(
   const key = `${uuidv4()}.${fileExtension}`;
 
   const command = new PutObjectCommand({
-    Bucket: process.env.AWS_BUCKET_NAME || "",
+    Bucket: "food-app-image-bucket",
     Key: key,
     Body: file.buffer,
     ContentType: file.mimetype,
@@ -36,7 +36,7 @@ export default async function uploadFile(
   await s3.send(command);
 
   const getCommand = new GetObjectCommand({
-    Bucket: process.env.AWS_BUCEKT_NAME || "",
+    Bucket: "food-app-image-bucket",
     Key: key,
   });
 

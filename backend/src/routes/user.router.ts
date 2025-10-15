@@ -210,14 +210,7 @@ router.put(
 
     let { firstName, lastName, email, password } = req.body;
 
-    // if (!firstName || !lastName || !email || !password) {
-    //   return res.status(401).json({
-    //     message: "Invalid input",
-    //   });
-    // }
-
     try {
-      //Get the existing user
       const existingUser = await prisma.user.findUnique({
         where: { id: userId },
       });
@@ -230,15 +223,19 @@ router.put(
       }
 
       let avatar: string | undefined;
-
-      if (file) {
-        const avatar = await uploadFile(file);
-      }
-
       const updates: any = {};
       const updatedFields: string[] = [];
 
-      if (!firstName && firstName != existingUser.firstName) {
+      if (file) {
+        avatar = await uploadFile(file);
+      }
+
+      if (avatar) {
+        updates.avatar = avatar;
+        updatedFields.push("avatar");
+      }
+
+      if (firstName && firstName !== existingUser.firstName) {
         updates.firstName = firstName;
         updatedFields.push("first name");
       }
@@ -265,11 +262,6 @@ router.put(
         }
       }
 
-      if (avatar) {
-        updates.avatar = avatar;
-        updatedFields.push("avatar");
-      }
-
       if (Object.keys(updates).length === 0) {
         return res.status(200).json({
           success: true,
@@ -284,7 +276,7 @@ router.put(
 
       return res.status(200).json({
         success: true,
-        message: `Successfully updated: ${updatedFields.join(", ")}.`,
+        message: `${updatedFields.join(", ")} updated successfully!`,
         updatedFields,
         user: {
           firstName: updatedUser.firstName,
@@ -302,7 +294,6 @@ router.put(
     }
   }
 );
-
 
 // Restaurant router for user
 router.use("/restaurants", restaurantsRouter);
