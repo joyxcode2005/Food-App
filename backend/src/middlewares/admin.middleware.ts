@@ -17,14 +17,13 @@ export default function adminMiddleware(
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
 
-    if (!decoded?.adminId)
+    if (!decoded?.id)
       return res.status(401).json({ message: "Invalid token" });
 
-    req.adminId = decoded.adminId;
+    req.adminId = decoded.id;
     next();
   } catch (error) {
     console.error("JWT verification failed:", error);
     res.status(401).json({ message: "Invalid or expired token" });
   }
 }
-

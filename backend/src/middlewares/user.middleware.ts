@@ -6,7 +6,6 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
-console.log("JWT SECRET IS: ", JWT_SECRET);
 
 // Middleware to authenticate the user properly
 export default function userMiddleware(

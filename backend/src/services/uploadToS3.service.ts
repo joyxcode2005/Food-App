@@ -17,8 +17,6 @@ const s3 = new S3Client({
   },
 });
 
-console.log(process.env.AWS_BUCKET_NAME)
-
 
 export default async function uploadFile(
   file: Express.Multer.File

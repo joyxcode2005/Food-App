@@ -19,3 +19,15 @@ export const userProfileUpdateSchema = z.object({
   firstName: z.string().min(3).max(20).optional(),
   lastName: z.string().min(3).max(20).optional(),
 });
+
+export const adminLoginScheam = z.object({
+  email: z.email(),
+  password: z.string().min(3).max(10),
+});
+
+export const adminProfileUpdateSchema = z.object({
+  email: z.email().optional(),
+  password: z.string().min(3).max(10).optional(),
+  firstName: z.string().min(3).max(20).optional(),
+  lastName: z.string().min(3).max(20).optional(),
+});
