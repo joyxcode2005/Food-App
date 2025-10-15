@@ -6,7 +6,6 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || "";
 
-
 // Middleware to authenticate the user properly
 export default function userMiddleware(
   req: Request,
@@ -25,7 +24,7 @@ export default function userMiddleware(
       return res.status(401).json({ message: "Invalid token" });
 
     req.userId = decoded.userId;
-
+    req.role = "user";
     next();
   } catch (error) {
     console.error("JWT verification failed:", error);

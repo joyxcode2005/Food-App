@@ -31,3 +31,35 @@ export const adminProfileUpdateSchema = z.object({
   firstName: z.string().min(3).max(20).optional(),
   lastName: z.string().min(3).max(20).optional(),
 });
+
+enum RestaurantStatus {
+  OPEN,
+  CLOSE,
+}
+
+enum FoodType {
+  VEG,
+  NON_VEG,
+}
+
+export interface FoodData {
+  id: string,
+  name: string,
+  description: string,
+  type: FoodType,
+  images: string[],
+  amount: number,
+  restaurantId: string,
+}
+
+export interface RestaurantData {
+  id: string;
+  name: string;
+  description: string;
+  location?: string;
+  phoneNumber: string;
+  status: RestaurantStatus;
+  time: string,
+  images: string[],
+  food: FoodData[],
+}

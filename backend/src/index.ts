@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.router";
 import adminRouter from "./routes/admin.router";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 8000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser())
+app.use(cookieParser());
 
 // Declaring global namespace
 declare global {
@@ -22,6 +22,7 @@ declare global {
     export interface Request {
       userId?: string;
       adminId?: string;
+      role: "admin" | "user";
     }
   }
 }

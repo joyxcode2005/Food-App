@@ -21,6 +21,7 @@ export default function adminMiddleware(
       return res.status(401).json({ message: "Invalid token" });
 
     req.adminId = decoded.id;
+    req.role = "admin";
     next();
   } catch (error) {
     console.error("JWT verification failed:", error);

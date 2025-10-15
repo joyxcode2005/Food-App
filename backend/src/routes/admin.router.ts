@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import prisma from "../config/db";
-import bcrypt, { compareSync } from "bcryptjs";
+import bcrypt from "bcryptjs";
 import multer from "multer";
 
 import { Request, Response, Router } from "express";
@@ -81,7 +81,6 @@ router.get("/me", async (req: Request, res: Response) => {
       },
     });
 
-
     if (!admin)
       return res.status(404).json({
         message: "Admin profile not found!!",
@@ -115,7 +114,6 @@ router.put("/me", async (req: Request, res: Response) => {
       errors: error,
     });
   }
-
 
   let { firstName, lastName, email, password } = data;
 
