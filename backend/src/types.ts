@@ -1,4 +1,4 @@
-import z, { email } from "zod";
+import z, { email, string } from "zod";
 
 export const userRegisterSchema = z.object({
   firstName: z.string().min(3).max(20).optional(),
@@ -32,34 +32,25 @@ export const adminProfileUpdateSchema = z.object({
   lastName: z.string().min(3).max(20).optional(),
 });
 
-enum RestaurantStatus {
+export const restaurantCreateSchema = z.object({
+  name: z.string().min(3).max(20),
+  description: z.string().min(10).max(100),
+  location: z.string().optional(),
+  phoneNumber: z.string().min(10),
+  status: z.enum(["open", "close"]),
+  time: z.string(),
+  images: z.array(z.string()),
+});
+
+export const foodCreateScheam = z.object({
+  name: z.string().min(3).max(20),
+  description: z.string().min(10).max(100),
+  type: z.enum(["veg", "non_veg"]),
+  images: z.array(z.string()),
+  amount: z.number(),
+});
+
+export enum RestaurantStatus {
   OPEN,
-  CLOSE,
-}
-
-enum FoodType {
-  VEG,
-  NON_VEG,
-}
-
-export interface FoodData {
-  id: string,
-  name: string,
-  description: string,
-  type: FoodType,
-  images: string[],
-  amount: number,
-  restaurantId: string,
-}
-
-export interface RestaurantData {
-  id: string;
-  name: string;
-  description: string;
-  location?: string;
-  phoneNumber: string;
-  status: RestaurantStatus;
-  time: string,
-  images: string[],
-  food: FoodData[],
+  CLOSE
 }
